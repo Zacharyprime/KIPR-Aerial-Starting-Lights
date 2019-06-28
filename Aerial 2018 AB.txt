@@ -1,0 +1,90 @@
+// Created on Wed July 11 2018
+// William Hawkins                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+
+int main()
+{
+	//Vars
+	int direction = 1;
+	int speed = 50;
+	int onoffswitch = 15;
+	int leftir = 3;
+	int rightir = 4;
+	int fleftir = 5;
+	int frightir = 6;
+	int rearbump = 14;
+	int ircutoff = 750; //IR line cutoff
+	int fircutoff = 200; //Front ir cutoff
+	int delay = 10; //Polling delay in ms
+	
+	//Connect + startup
+	create_connect();
+	create_full();
+	//set_analog_pullup(leftir,0);
+	//set_analog_pullup(rightir,0);
+	
+	//Enter main loop
+	while(1)
+	{
+		//Debounce
+		while(!digital(onoffswitch));
+		while(digital(onoffswitch));
+		beep();
+		while(!digital(onoffswitch))
+		{
+			//Run
+			if(direction == 1)
+			{
+				//Forwards
+				if(analog_et(frightir) > fircutoff)
+				{
+					create_drive_direct(speed, (speed/2));
+					printf("r\n");
+				}
+				else if(analog_et(fleftir) > fircutoff)
+				{
+					printf("l\n");
+					create_drive_direct((speed/2), speed);
+				}
+				else
+				{
+					create_drive_direct(speed,speed);
+				}
+				msleep(delay);
+				if(get_create_lbump() || get_create_rbump())
+				{
+					direction = -direction;
+					beep();
+				}
+			}
+			else
+			{
+				//Backwards
+				if(analog_et(rightir) > ircutoff)
+				{
+					create_drive_direct(-speed, -speed/2);
+				}
+				else if(analog_et(leftir) > ircutoff)
+				{
+					create_drive_direct(-speed/2, -speed);
+				}
+				else
+				{
+					create_drive_direct(-speed,-speed);
+				}
+				msleep(delay);
+				if(digital(rearbump))
+				{
+					direction = -direction;
+					beep();
+				}
+			}
+		}
+		//Catch exit press, debounce
+		while(digital(onoffswitch));
+		create_drive_direct(0,0);
+		beep();
+	}
+	
+	create_disconnect();
+	return 0;
+}
