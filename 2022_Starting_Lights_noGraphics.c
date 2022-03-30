@@ -60,6 +60,7 @@ void flash(int timeLimit){
 int main()
 {
     while(0<300){ 
+	console_clear();
         printf("Starting Light Controll System: \n\n -- Press button to start game. -- \n \n \n Note: \nThis program cannot be ran from the IDE. Run on controller menu.");
         
         //Wait until user presses any button
